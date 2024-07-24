@@ -1,0 +1,107 @@
+--Lib Aqui
+
+local Lib = loadstring(game:HttpGet("https://raw.githubusercontent.com/7yhx/kwargs_Ui_Library/main/source.lua"))()
+
+local UI = Lib:Create{
+   Theme = "Dark", -- or any other theme
+   Size = UDim2.new(0, 555, 0, 400) -- default
+}
+
+local Main = UI:Tab{
+   Name = "Iniciar"
+}
+
+local Divider = Main:Divider{
+   Name = "Inicio shit"
+}
+
+local QuitDivider = Main:Divider{
+   Name = "Sair"
+}
+
+-- All functions have the Name, Description and Callback arguments so you can use them whenever ig yeah
+local KillAll = Divider:Button{
+    Name = "Kill all",
+    Description = "Kills all the players in the game!",
+    Callback = function()
+        print("All players killed.")
+    end
+ }
+ 
+ local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local Camera = workspace.CurrentCamera
+
+local FOVCircle = Drawing.new("Circle")
+FOVCircle.Position = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
+FOVCircle.Radius = 80
+FOVCircle.Filled = false
+FOVCircle.Color = Color3.fromRGB(255, 255, 255)
+FOVCircle.Visible = false -- Começa invisível
+FOVCircle.Transparency = 0.7
+FOVCircle.NumSides = 64
+FOVCircle.Thickness = 0
+
+local Lines = {}
+local IsActive = false -- Variável para controlar o estado do ESP
+
+local function IsNPC(character)
+    -- Lógica para verificar se o personagem é um NPC (usando tags, nomes, etc.)
+    -- Substitua pela lógica real de identificação dos NPCs
+    return true
+end
+
+local function CreateLine()
+    local line = Drawing.new("Line")
+    line.Color = Color3.fromRGB(255, 0, 0)
+    line.Thickness = 1
+    line.Transparency = 1
+    return line
+end
+
+local function UpdateFOVCircle()
+    FOVCircle.Position = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
+end
+
+local function DrawLinesToNPCs()
+    -- Limpa linhas anteriores
+    for _, line in ipairs(Lines) do
+        line:Remove()
+    end
+    Lines = {}
+
+    -- Percorre todos os modelos no workspace
+    for _, model in pairs(workspace:GetChildren()) do
+        if model:IsA("Model") and model:FindFirstChild("HumanoidRootPart") then
+            if IsNPC(model) then
+                local ScreenPoint = Camera:WorldToScreenPoint(model.HumanoidRootPart.Position)
+                local line = CreateLine()
+                line.From = FOVCircle.Position
+                line.To = Vector2.new(ScreenPoint.X, ScreenPoint.Y)
+                table.insert(Lines, line)
+            end
+        end
+    end
+end
+
+local function ToggleESP()
+    IsActive = not IsActive
+    FOVCircle.Visible = IsActive
+    if IsActive then
+        DrawLinesToNPCs()
+    end
+end
+
+UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
+    if not gameProcessedEvent and input.KeyCode == Enum.KeyCode.P then
+        ToggleESP()
+    end
+end)
+
+RunService.RenderStepped:Connect(function()
+    if IsActive then
+        UpdateFOVCircle()
+        DrawLinesToNPCs()
+    end
+end)
