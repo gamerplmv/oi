@@ -1,0 +1,16 @@
+[project]
+name = "lunar-bot"
+version = "0.1.0"
+description = "Discord bot com sistema de reaction/select/button roles multilíngue"
+requires-python = ">=3.11"
+dependencies = [
+  "discord.py>=2.4.0",
+  "sqlalchemy[asyncio]>=2.0.30",
+  "aiosqlite>=0.20.0",
+  "pydantic>=2.7.0",
+  "python-dotenv>=1.0.1",
+  "pydantic-settings>=2.3.4"
+]
+
+[tool.ruff]
+line-length = 100
